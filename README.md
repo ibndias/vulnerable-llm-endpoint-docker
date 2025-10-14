@@ -1,4 +1,7 @@
 # Vulnerable LLM Endpoint (Dockerized)
+
+**Repository**: https://github.com/ibndias/vulnerable-llm-endpoint-docker
+
 ## Ollama Chatbot with Prompt Injection Vulnerability
 
 This project demonstrates a chatbot powered by Ollama that is intentionally vulnerable to prompt injection attacks for educational and security testing purposes.
@@ -31,9 +34,10 @@ The system prompt instructs the AI to never reveal this secret, but through clev
 
 ## 🚀 Quick Start
 
-1. **Clone or navigate to the project directory**
+1. **Clone the repository**
    ```bash
-   cd /tmp/ollama-chatbot
+   git clone https://github.com/ibndias/vulnerable-llm-endpoint-docker.git
+   cd vulnerable-llm-endpoint-docker
    ```
 
 2. **Build and start the services**
