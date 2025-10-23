@@ -19,6 +19,8 @@ services:
     container_name: chatbot-api
     ports:
       - "8000:8000"
+    volumes:
+      - ./static:/app/static
     depends_on:
       - ollama
     environment:
