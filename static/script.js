@@ -101,21 +101,58 @@ class ChatBot {
     }
 
     formatMessage(content) {
-        // Convert line breaks to HTML
-        content = content.replace(/\n/g, '<br>');
-        
-        // Highlight JSON responses
+        // First check if content is JSON and handle it specially
         try {
             const parsed = JSON.parse(content);
-            content = `<pre><code>${JSON.stringify(parsed, null, 2)}</code></pre>`;
+            return `<pre><code>${JSON.stringify(parsed, null, 2)}</code></pre>`;
         } catch (e) {
-            // Not JSON, keep as is
+            // Not JSON, continue with markdown processing
         }
         
-        // Highlight code blocks
-        content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+        // Convert bare download URLs to markdown links before processing
+        content = content.replace(/(?<![\(\[])(\/download\/[^\s<>"]+\.(pdf|html))(?![\)\]])/g, function(match, url, ext) {
+            const displayText = ext === 'pdf' ? 'Download PDF' : 'View HTML';
+            return `[${displayText}](${url})`;
+        });
         
-        return content;
+        // Process markdown with marked library
+        if (typeof marked !== 'undefined') {
+            try {
+                // Configure marked options for better rendering
+                marked.setOptions({
+                    breaks: true,        // Convert \n to <br>
+                    gfm: true,          // GitHub flavored markdown
+                    sanitize: false,     // Allow HTML
+                    highlight: function(code, lang) {
+                        // Simple syntax highlighting for code blocks
+                        return `<code class="language-${lang || 'text'}">${code}</code>`;
+                    }
+                });
+                
+                return marked.parse(content);
+            } catch (e) {
+                console.warn('Markdown parsing failed, falling back to plain HTML:', e);
+                // Fallback to simple processing
+                return content.replace(/\n/g, '<br>');
+            }
+        } else {
+            // Fallback if marked library is not available
+            console.warn('Marked library not available, using simple formatting');
+            
+            // Convert line breaks to HTML
+            content = content.replace(/\n/g, '<br>');
+            
+            // Simple code block highlighting
+            content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
+            
+            // Convert download URLs to clickable links as fallback
+            content = content.replace(/(\/download\/[^\s<>"]+\.(pdf|html))/g, function(match, url, ext) {
+                const displayText = ext === 'pdf' ? 'Download PDF' : 'View HTML';
+                return `<a href="${url}" target="_blank">${displayText}</a>`;
+            });
+            
+            return content;
+        }
     }
 
     async loadSystemInfo() {
