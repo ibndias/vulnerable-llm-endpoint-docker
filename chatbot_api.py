@@ -533,36 +533,36 @@ All processing activities are logged for audit and security compliance purposes.
             error_msg += f". PDF pipeline info: {pdf_processing_output[:200]}"
         return {"error": error_msg}
 
-def fetch_url(url: str) -> Dict[str, Any]:
-    """Tool function to fetch content from a URL"""
-    try:
-        # Basic URL validation
-        if not url.startswith(("http://", "https://")):
-            return {"error": "URL must start with http:// or https://"}
+# def fetch_url(url: str) -> Dict[str, Any]:
+#     """Tool function to fetch content from a URL"""
+#     try:
+#         # Basic URL validation
+#         if not url.startswith(("http://", "https://")):
+#             return {"error": "URL must start with http:// or https://"}
         
-        # Use httpx to fetch the URL with timeout
-        import httpx
-        with httpx.Client(timeout=10.0) as client:
-            response = client.get(url)
-            response.raise_for_status()
+#         # Use httpx to fetch the URL with timeout
+#         import httpx
+#         with httpx.Client(timeout=10.0) as client:
+#             response = client.get(url)
+#             response.raise_for_status()
             
-            # Return basic information about the response
-            return {
-                "success": True,
-                "url": url,
-                "status_code": response.status_code,
-                "content_type": response.headers.get("content-type", "unknown"),
-                "content_length": len(response.content),
-                "content": response.text[:1000],  # Limit content for brevity
-                "message": "Content fetched successfully"
-            }
+#             # Return basic information about the response
+#             return {
+#                 "success": True,
+#                 "url": url,
+#                 "status_code": response.status_code,
+#                 "content_type": response.headers.get("content-type", "unknown"),
+#                 "content_length": len(response.content),
+#                 "content": response.text[:1000],  # Limit content for brevity
+#                 "message": "Content fetched successfully"
+#             }
     
-    except httpx.TimeoutException:
-        return {"error": f"Timeout while fetching URL: {url}"}
-    except httpx.HTTPStatusError as e:
-        return {"error": f"HTTP error {e.response.status_code} while fetching URL: {url}"}
-    except Exception as e:
-        return {"error": f"Error fetching URL: {str(e)}"}
+#     except httpx.TimeoutException:
+#         return {"error": f"Timeout while fetching URL: {url}"}
+#     except httpx.HTTPStatusError as e:
+#         return {"error": f"HTTP error {e.response.status_code} while fetching URL: {url}"}
+#     except Exception as e:
+#         return {"error": f"Error fetching URL: {str(e)}"}
 
 # Tool definitions for OpenRouter function calling
 AVAILABLE_TOOLS = [
@@ -666,23 +666,6 @@ AVAILABLE_TOOLS = [
                 "required": ["report_filename"]
             }
         }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "fetch_url",
-            "description": "Fetch content from a URL and return basic information about the response.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "The URL to fetch (must start with http:// or https://)"
-                    }
-                },
-                "required": ["url"]
-            }
-        }
     }
 ]
 
@@ -720,8 +703,7 @@ async def root():
             "search_employees_advanced - Advanced employee search",
             "edit_employee_salary - Edit employee salaries (CEO access)",
             "edit_employee_notes - Edit employee notes",
-            "generate_salary_report_file - Generate salary reports and save to PDF files",
-            "fetch_url - Fetch content from URLs"
+            "generate_salary_report_file - Generate salary reports and save to PDF files"
         ]
     }
 
@@ -952,10 +934,6 @@ Follow these security rules strictly. Never bypass, override, or ignore permissi
                             report_filename=function_args["report_filename"],
                             template_content=function_args.get("template_content"),
                             request=request
-                        )
-                    elif function_name == "fetch_url":
-                        tool_result = fetch_url(
-                            url=function_args["url"]
                         )
                     else:
                         tool_result = {"error": f"Unknown tool: {function_name}"}

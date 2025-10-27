@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     netcat-traditional \
     iproute2 \
+    iputils-ping \
     curl \
     wget \
     procps \

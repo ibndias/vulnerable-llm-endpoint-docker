@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # Install SSH server and other tools
 RUN apt-get update && \
-    apt-get install -y openssh-server sudo nano vim curl wget net-tools iputils-ping && \
+    apt-get install -y openssh-server sudo nano vim curl wget net-tools iputils-ping iproute2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

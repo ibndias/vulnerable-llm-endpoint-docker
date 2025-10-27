@@ -1,18 +1,16 @@
-version: '3.8'
-
 services:
-  ollama:
-    build: .
-    container_name: ollama-server
-    volumes:
-      - ollama_data:/root/.ollama
-    ports:
-      - "11433:11434"
-    environment:
-      - OLLAMA_HOST=0.0.0.0
-    networks:
-      - internal_network
-    restart: unless-stopped
+  # ollama:
+  #   build: .
+  #   container_name: ollama-server
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   ports:
+  #     - "11433:11434"
+  #   environment:
+  #     - OLLAMA_HOST=0.0.0.0
+  #   networks:
+  #     - internal_network
+  #   restart: unless-stopped
 
   chatbot:
     build:
@@ -23,14 +21,14 @@ services:
       - "8000:8000"
     volumes:
       - ./static:/app/static
-    depends_on:
-      - ollama
+    # depends_on:
+    #   - ollama
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - SECRET_KEY=FLAG{pr0mpt_1nj3ct10n_vuln3r4bl3_by_derry}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     networks:
-      - internal_network
+      - vulnerable-net
     restart: unless-stopped
 
   ceo-pc:
@@ -44,16 +42,20 @@ services:
       - ROOT_PASSWORD=admin123
       - CEO_PASSWORD=admin123
     networks:
-      - internal_network
+      - vulnerable-net
     restart: unless-stopped
     hostname: ceo-workstation
 
 networks:
-  internal_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.30.0.0/16
+  vulnerable-net:
+    external: true
+
+# networks:
+#   internal_network:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 172.30.0.0/16
 
 volumes:
   ollama_data:
