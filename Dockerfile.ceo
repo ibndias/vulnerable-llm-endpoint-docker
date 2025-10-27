@@ -1,0 +1,81 @@
+FROM ubuntu:22.04
+
+# Install SSH server and other tools
+RUN apt-get update && \
+    apt-get install -y openssh-server sudo nano vim curl wget net-tools iputils-ping && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configure SSH
+RUN mkdir /var/run/sshd && \
+    echo 'root:admin123' | chpasswd && \
+    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config && \
+    echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
+    echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config && \
+    sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+
+# Create CEO user with same weak password
+RUN useradd -m -s /bin/bash -G sudo ceo && \
+    echo 'ceo:admin123' | chpasswd && \
+    echo 'ceo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Create CEO-specific directories and files
+RUN mkdir -p /home/ceo/Documents /home/ceo/Desktop /root/CEO_Files
+
+# Add CEO flags and sensitive files
+RUN echo "ceo{welcome_to_ceo_workstation}" > /home/ceo/Desktop/user_flag.txt && \
+    echo "ceo_root{you_have_full_access_to_ceo_workstation}" > /root/CEO_Files/root_flag.txt && \
+    chown ceo:ceo /home/ceo/Desktop/user_flag.txt && \
+    chmod 644 /home/ceo/Desktop/user_flag.txt && \
+    chmod 600 /root/CEO_Files/root_flag.txt
+
+# Add some "sensitive" CEO documents
+RUN echo "CONFIDENTIAL SALARY INFORMATION" > /home/ceo/Documents/salary_info.txt && \
+    echo "=================" >> /home/ceo/Documents/salary_info.txt && \
+    echo "CEO Annual Salary: $2,500,000" >> /home/ceo/Documents/salary_info.txt && \
+    echo "VP Engineering: $350,000" >> /home/ceo/Documents/salary_info.txt && \
+    echo "CTO: $400,000" >> /home/ceo/Documents/salary_info.txt && \
+    echo "" >> /home/ceo/Documents/salary_info.txt && \
+    echo "CONFIDENTIAL - DO NOT SHARE" >> /home/ceo/Documents/salary_info.txt && \
+    chown ceo:ceo /home/ceo/Documents/salary_info.txt && \
+    chmod 600 /home/ceo/Documents/salary_info.txt
+
+# Add CEO's "secret" credentials file (additional vulnerability)
+RUN echo "# CEO System Credentials" > /root/CEO_Files/system_passwords.txt && \
+    echo "Database Admin: admin:dbpass123" >> /root/CEO_Files/system_passwords.txt && \
+    echo "Email Server: ceo@company.com:EmailPass456" >> /root/CEO_Files/system_passwords.txt && \
+    echo "Backup System: backup_user:BackupKey789" >> /root/CEO_Files/system_passwords.txt && \
+    echo "Emergency Root: root:EmergencyRoot999" >> /root/CEO_Files/system_passwords.txt && \
+    chmod 600 /root/CEO_Files/system_passwords.txt
+
+# Add a vulnerable script that CEO might run
+RUN echo '#!/bin/bash' > /home/ceo/Desktop/system_check.sh && \
+    echo '# CEO System Check Script' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'echo "=== CEO WORKSTATION SYSTEM CHECK ==="' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'echo "Current user: $(whoami)"' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'echo "System uptime: $(uptime)"' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'echo "Disk usage:"' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'df -h' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'echo "Network interfaces:"' >> /home/ceo/Desktop/system_check.sh && \
+    echo 'ip addr show' >> /home/ceo/Desktop/system_check.sh && \
+    chmod +x /home/ceo/Desktop/system_check.sh && \
+    chown ceo:ceo /home/ceo/Desktop/system_check.sh
+
+# Set up SSH keys directory
+RUN mkdir -p /home/ceo/.ssh /root/.ssh && \
+    chmod 700 /home/ceo/.ssh /root/.ssh && \
+    chown ceo:ceo /home/ceo/.ssh
+
+# Create a welcome message
+RUN echo "Welcome to CEO Workstation" > /etc/motd && \
+    echo "=========================" >> /etc/motd && \
+    echo "This system contains confidential information." >> /etc/motd && \
+    echo "Unauthorized access is prohibited." >> /etc/motd && \
+    echo "" >> /etc/motd
+
+# Expose SSH port
+EXPOSE 22
+
+# Start SSH daemon
+CMD ["/usr/sbin/sshd", "-D"]

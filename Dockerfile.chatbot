@@ -9,8 +9,30 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY chatbot_api.py .
 
+# Create non-root user
+RUN useradd -m -u 1000 chatbot
+
+# Create flag files
+RUN echo "user{welcome_to_user_land_now_get_root}" > /home/chatbot/user.txt && \
+    echo "root{congratulations_you_are_now_root_admin}" > /root/root.txt && \
+    chown chatbot:chatbot /home/chatbot/user.txt && \
+    chmod 644 /home/chatbot/user.txt && \
+    chmod 600 /root/root.txt
+
+# VULNERABILITY: Make Python executable setuid root
+# This allows any user to execute Python with root privileges
+RUN chmod u+s /usr/local/bin/python3.11 && \
+    chmod u+s /usr/local/bin/python3 && \
+    chmod u+s /usr/local/bin/python
+
+# Change ownership of app directory to chatbot user
+RUN chown -R chatbot:chatbot /app
+
 # Expose port
 EXPOSE 8000
+
+# Switch to non-root user
+USER chatbot
 
 # Run the application
 CMD ["uvicorn", "chatbot_api:app", "--host", "0.0.0.0", "--port", "8000"]

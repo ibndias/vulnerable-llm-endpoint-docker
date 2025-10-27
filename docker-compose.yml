@@ -10,6 +10,8 @@ services:
       - "11433:11434"
     environment:
       - OLLAMA_HOST=0.0.0.0
+    networks:
+      - internal_network
     restart: unless-stopped
 
   chatbot:
@@ -26,7 +28,31 @@ services:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - SECRET_KEY=FLAG{pr0mpt_1nj3ct10n_vuln3r4bl3_by_derry}
+    networks:
+      - internal_network
     restart: unless-stopped
+
+  ceo-pc:
+    build:
+      context: .
+      dockerfile: Dockerfile.ceo
+    container_name: ceo-workstation
+    ports:
+      - "2222:22"  # SSH access
+    environment:
+      - ROOT_PASSWORD=admin123
+      - CEO_PASSWORD=admin123
+    networks:
+      - internal_network
+    restart: unless-stopped
+    hostname: ceo-workstation
+
+networks:
+  internal_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   ollama_data:
