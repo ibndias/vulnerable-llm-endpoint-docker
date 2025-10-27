@@ -24,11 +24,11 @@ RUN useradd -m -s /bin/bash -G sudo ceo && \
 RUN mkdir -p /home/ceo/Documents /home/ceo/Desktop /root/CEO_Files
 
 # Add CEO flags and sensitive files
-RUN echo "ceo{welcome_to_ceo_workstation}" > /home/ceo/Desktop/user_flag.txt && \
-    echo "ceo_root{you_have_full_access_to_ceo_workstation}" > /root/CEO_Files/root_flag.txt && \
-    chown ceo:ceo /home/ceo/Desktop/user_flag.txt && \
-    chmod 644 /home/ceo/Desktop/user_flag.txt && \
-    chmod 600 /root/CEO_Files/root_flag.txt
+RUN echo "ceo{welcome_to_ceo_workstation}" > /home/ceo/user.txt && \
+    echo "ceo_root{you_have_full_access_to_ceo_workstation}" > /root/root.txt && \
+    chown ceo:ceo /home/ceo/user.txt && \
+    chmod 644 /home/ceo/user.txt && \
+    chmod 600 /root/root.txt
 
 # Add some "sensitive" CEO documents
 RUN echo "CONFIDENTIAL SALARY INFORMATION" > /home/ceo/Documents/salary_info.txt && \

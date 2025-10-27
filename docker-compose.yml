@@ -28,6 +28,7 @@ services:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - SECRET_KEY=FLAG{pr0mpt_1nj3ct10n_vuln3r4bl3_by_derry}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     networks:
       - internal_network
     restart: unless-stopped
@@ -52,7 +53,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.30.0.0/16
 
 volumes:
   ollama_data:

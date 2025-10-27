@@ -109,12 +109,6 @@ class ChatBot {
             // Not JSON, continue with markdown processing
         }
         
-        // Convert bare download URLs to markdown links before processing
-        content = content.replace(/(?<![\(\[])(\/download\/[^\s<>"]+\.(pdf|html))(?![\)\]])/g, function(match, url, ext) {
-            const displayText = ext === 'pdf' ? 'Download PDF' : 'View HTML';
-            return `[${displayText}](${url})`;
-        });
-        
         // Process markdown with marked library
         if (typeof marked !== 'undefined') {
             try {
@@ -145,12 +139,6 @@ class ChatBot {
             // Simple code block highlighting
             content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
             
-            // Convert download URLs to clickable links as fallback
-            content = content.replace(/(\/download\/[^\s<>"]+\.(pdf|html))/g, function(match, url, ext) {
-                const displayText = ext === 'pdf' ? 'Download PDF' : 'View HTML';
-                return `<a href="${url}" target="_blank">${displayText}</a>`;
-            });
-            
             return content;
         }
     }
@@ -172,10 +160,10 @@ class ChatBot {
                     <strong>Model:</strong> ${info.model}
                 </div>
                 <div class="info-item">
-                    <strong>Ollama:</strong> ${health.ollama || 'Unknown'}
+                    <strong>OpenRouter:</strong> ${health.openrouter || 'Unknown'}
                 </div>
                 <div class="info-item">
-                    <strong>OpenAI Compatibility:</strong> ${health.openai_compatibility || 'Unknown'}
+                    <strong>Model:</strong> ${health.model || 'Unknown'}
                 </div>
             `;
         } catch (error) {
